@@ -6,7 +6,7 @@
  *
  * &copy; 2011 Jamie Lottering <http://github.com/JamieLottering>
  *                        <http://twitter.com/JamieLottering>
- * 
+ *
  */
 (function ($, window, document) {
 
@@ -18,7 +18,7 @@
   } else {
     document.documentElement.className = document.documentElement.className + ' dk_fouc';
   }
-  
+
   var
     // Public methods exposed to $.fn.dropkick()
     methods = {},
@@ -37,9 +37,9 @@
 
     // HTML template for the dropdowns
     dropdownTemplate = [
-      '<div class="dk_container" id="dk_container_{{ id }}" tabindex="{{ tabindex }}">',
+      '<div class="dk_container {{ flag }}" id="dk_container_{{ id }}" tabindex="{{ tabindex }}">',
         '<a class="dk_toggle">',
-          '<span class="dk_label">{{ label }}</span>',
+          '<span class="dk_label">{{ flagImage }}{{ label }}</span>',
         '</a>',
         '<div class="dk_options">',
           '<ul class="dk_options_inner">',
@@ -49,13 +49,14 @@
     ].join(''),
 
     // HTML template for dropdown options
-    optionTemplate = '<li class="{{ current }}"><a data-dk-dropdown-value="{{ value }}">{{ text }}</a></li>',
+    optionTemplate = '<li class="{{ current }}"><a data-dk-dropdown-value="{{ value }}">{{ flag }}{{ text }}</a></li>',
 
     // Some nice default values
     defaults = {
       startSpeed : 1000,  // I recommend a high value here, I feel it makes the changes less noticeable to the user
       theme  : false,
-      change : false
+      change : false,
+      flags: false
     },
 
     // Make sure we only bind keydown on the document once
@@ -92,6 +93,8 @@
         // The completed dk_container element
         $dk = false,
 
+        flags  = settings.flags,
+
         theme
       ;
 
@@ -107,10 +110,15 @@
         data.value     = _notBlank($select.val()) || _notBlank($original.attr('value'));
         data.label     = $original.text();
         data.options   = $options;
+        data.flags      = flags;
       }
 
       // Build the dropdown HTML
       $dk = _build(dropdownTemplate, data);
+
+      if (data.flags === true) {
+        width = width + 16;
+      }
 
       // Make the dropdown fixed width if desired
       $dk.find('.dk_toggle').css({
@@ -263,7 +271,14 @@
     $select = data.$select;
     $select.val(value);
 
-    $dk.find('.dk_label').text(label);
+    if (data.settings.flags === true) {
+      flagImg = _createFlagImg(value.toLowerCase());
+      $dk.find('.dk_label').html(flagImg+label);
+    } else {
+      $dk.find('.dk_label').text(label);
+    }
+
+
 
     reset = reset || false;
 
@@ -298,6 +313,12 @@
 
   }
 
+  function _createFlagImg (country) {
+    flagTemplate = '<img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw%3D%3D" class="flag flag-{{ country }}"/>';
+    flagTemplate = flagTemplate.replace('{{ country }}', country.toLowerCase());
+    return flagTemplate;
+  }
+
   /**
    * Turn the dropdownTemplate into a jQuery object and fill in the variables.
    */
@@ -314,6 +335,14 @@
     template = template.replace('{{ label }}', view.label);
     template = template.replace('{{ tabindex }}', view.tabindex);
 
+    if (view.flags === true) {
+      template = template.replace('{{ flag }}', 'flags');
+      template = template.replace('{{ flagImage }}',  _createFlagImg(view.value.toLowerCase()));
+    } else {
+      template = template.replace('{{ flag }}', '');
+      template = template.replace('{{ flagImage }}', '');
+    }
+
     if (view.options && view.options.length) {
       for (var i = 0, l = view.options.length; i < l; i++) {
         var
@@ -325,6 +354,13 @@
         oTemplate = oTemplate.replace('{{ value }}', $option.val());
         oTemplate = oTemplate.replace('{{ current }}', (_notBlank($option.val()) === view.value) ? current : '');
         oTemplate = oTemplate.replace('{{ text }}', $option.text());
+
+        if (view.flags === true && $option.val().toLowerCase() != '' ) {
+          flagTemplate = _createFlagImg($option.val().toLowerCase());
+          oTemplate = oTemplate.replace('{{ flag }}', flagTemplate);
+        } else {
+          oTemplate = oTemplate.replace('{{ flag }}', '');
+        }
 
         options[options.length] = oTemplate;
       }
@@ -364,11 +400,11 @@
         $dk     = $option.parents('.dk_container').first(),
         data    = $dk.data('dropkick')
       ;
-    
+
       _closeDropdown($dk);
       _updateFields($option, $dk);
       _setCurrent($option.parent(), $dk);
-    
+
       e.preventDefault();
       return false;
     });

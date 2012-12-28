@@ -115,6 +115,11 @@
     text-shadow: rgba(0, 0, 0, .5) 0 1px 0;
   }
 
+  .dk_options .flag {
+    margin-right: 8px;
+    vertical-align: text-top;
+  }
+
 /* Inner container for options, this is what makes the scrollbar possible. */
 .dk_options_inner {
   border: 1px solid #8c8c8e;
@@ -163,6 +168,11 @@
   }
   .dk_open .dk_label {
     color: inherit;
+  }
+
+  .dk_label .flag{
+    margin-right: 8px;
+    vertical-align: text-top;
   }
 
 .dk_options {

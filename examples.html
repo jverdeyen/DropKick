@@ -6,8 +6,9 @@
   <title>JamieLottering/DropKick @ GitHub</title>
   <link rel="stylesheet" href="example/example.css" type="text/css">
   <link rel="stylesheet" href="dropkick.css" type="text/css">
+  <link rel="stylesheet" href="flags.css" type="text/css">
   <link href='http://fonts.googleapis.com/css?family=Carter+One&v1' rel='stylesheet' type='text/css'>
-  
+
   <style type="text/css">
     /* Two custom themes */
     .dk_theme_orange {
@@ -72,6 +73,13 @@
   <script type="text/javascript" charset="utf-8">
     $(function () {
       $('.default').dropkick();
+
+      $('.country_flags').dropkick({
+        flags: true,
+        change: function (value, label) {
+          alert('You picked: ' + label + ':' + value);
+        }
+      });
 
       $('.black').dropkick({
         theme : 'black'
@@ -178,16 +186,6 @@
               <option value="WY">Wyoming</option>
             </select>
 
-            <select name="country" class="existing_event" tabindex="4" onchange="alert('hi, from ' + this.value)">
-              <option value="">Try Me!</option>
-              <option value="AU">Australia</option>
-              <option value="CA">Canada</option>
-              <option value="DE">Germany</option>
-              <option value="JP">Japan</option>
-              <option value="GB">United Kingdom</option>
-              <option value="US">United States</option>
-            </select>
-
             <p><script src="https://gist.github.com/1062688.js?file=dropkick_example_default.js"></script></p>
           </form>
         </fieldset>
@@ -210,10 +208,29 @@
       </div>
 
       <div class="example">
+        <h2>Country flags</h2>
+        <fieldset>
+          <form action="#" method="post" accept-charset="utf-8" class="example_form">
+            <select name="country_flags" class="country_flags" tabindex="5">
+              <option value="">Select country</option>
+              <option value="AU">Australia</option>
+              <option value="CA">Canada</option>
+              <option value="DE">Germany</option>
+              <option value="JP">Japan</option>
+              <option value="GB">United Kingdom</option>
+              <option value="US">United States</option>
+            </select>
+            <div style="clear: both;"></div>
+            <script src="https://gist.github.com/1062688.js?file=dropkick_example_default.js"></script>
+          </form>
+        </fieldset>
+      </div>
+
+      <div class="example">
         <h2>Creating custom themes</h2>
         <fieldset>
           <form action="#" method="post" accept-charset="utf-8" class="example_form">
-            <select name="theme" class="custom_theme" tabindex="5">
+            <select name="theme" class="custom_theme" tabindex="6">
               <option value="">Pick a theme. Any theme</option>
               <option value="default">Default Theme</option>
               <option value="black" >Dark Gloss</option>
@@ -225,6 +242,7 @@
           </form>
         </fieldset>
       </div>
+
     </div>
   </div>
 
