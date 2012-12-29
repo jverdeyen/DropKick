@@ -116,6 +116,13 @@
       // Build the dropdown HTML
       $dk = _build(dropdownTemplate, data);
 
+      $select.change(function() {
+        var selected = $select.find(':selected').first();
+        _setFields($dk, selected.val(), selected.text());
+        $current = $dk.find("a[data-dk-dropdown-value='" + selected.val() + "']");
+        _setCurrent($current.parents('li'), $dk);
+      });
+
       if (data.flags === true) {
         width = width + 16;
       }
@@ -180,8 +187,7 @@
       var
         listData  = lists[i].data('dropkick'),
         $dk       = listData.$dk,
-        $current  = $dk.find('li').first()
-      ;
+        $current  = $dk.find('li').first();
 
       $dk.find('.dk_label').text(listData.label);
       $dk.find('.dk_options_inner').animate({ scrollTop: 0 }, 0);
@@ -213,8 +219,7 @@
       first    = options.find('li').first(),
       last     = options.find('li').last(),
       next,
-      prev
-    ;
+      prev;
 
     switch (code) {
       case keyMap.enter:
@@ -260,6 +265,17 @@
     }
   }
 
+  function _setFields($dk, value, label) {
+    data  = $dk.data('dropkick');
+
+    if (data.settings.flags === true) {
+      flagImg = _createFlagImg(value.toLowerCase());
+      $dk.find('.dk_label').html(flagImg+label);
+    } else {
+      $dk.find('.dk_label').text(label);
+    }
+  }
+
   // Update the <select> value, and the dropdown label
   function _updateFields(option, $dk, reset) {
     var value, label, data;
@@ -271,14 +287,7 @@
     $select = data.$select;
     $select.val(value);
 
-    if (data.settings.flags === true) {
-      flagImg = _createFlagImg(value.toLowerCase());
-      $dk.find('.dk_label').html(flagImg+label);
-    } else {
-      $dk.find('.dk_label').text(label);
-    }
-
-
+    _setFields($dk, value, label);
 
     reset = reset || false;
 
@@ -307,10 +316,16 @@
 
   // Open a dropdown
   function _openDropdown($dk) {
-    var data = $dk.data('dropkick');
-    $dk.find('.dk_options').css({ top : $dk.find('.dk_toggle').outerHeight() - 1 });
-    $dk.toggleClass('dk_open');
 
+    if ("ontouchstart" in window) {
+      $dk.siblings('select').show();
+      $dk.siblings('select').focus();
+      $dk.siblings('select').hide();
+    } else {
+      var data = $dk.data('dropkick');
+      $dk.find('.dk_options').css({ top : $dk.find('.dk_toggle').outerHeight() - 1 });
+      $dk.toggleClass('dk_open');
+    }
   }
 
   function _createFlagImg (country) {
@@ -328,8 +343,7 @@
       template  = tpl,
       // Holder of the dropdowns options
       options   = [],
-      $dk
-    ;
+      $dk;
 
     template = template.replace('{{ id }}', view.id);
     template = template.replace('{{ label }}', view.label);
@@ -337,7 +351,7 @@
 
     if (view.flags === true) {
       template = template.replace('{{ flag }}', 'flags');
-      template = template.replace('{{ flagImage }}',  _createFlagImg(view.value.toLowerCase()));
+      template = template.replace('{{ flagImage }}',  _createFlagImg(String(view.value).toLowerCase()));
     } else {
       template = template.replace('{{ flag }}', '');
       template = template.replace('{{ flagImage }}', '');
@@ -348,14 +362,13 @@
         var
           $option   = $(view.options[i]),
           current   = 'dk_option_current',
-          oTemplate = optionTemplate
-        ;
+          oTemplate = optionTemplate;
 
         oTemplate = oTemplate.replace('{{ value }}', $option.val());
         oTemplate = oTemplate.replace('{{ current }}', (_notBlank($option.val()) === view.value) ? current : '');
         oTemplate = oTemplate.replace('{{ text }}', $option.text());
 
-        if (view.flags === true && $option.val().toLowerCase() != '' ) {
+        if (view.flags === true && $option.val().toLowerCase() !== '' ) {
           flagTemplate = _createFlagImg($option.val().toLowerCase());
           oTemplate = oTemplate.replace('{{ flag }}', flagTemplate);
         } else {
@@ -378,17 +391,11 @@
 
   $(function () {
 
+
     // Handle click events on the dropdown toggler
     $('.dk_toggle').live('click', function (e) {
       var $dk  = $(this).parents('.dk_container').first();
-
       _openDropdown($dk);
-
-      if ("ontouchstart" in window) {
-        $dk.addClass('dk_touch');
-        $dk.find('.dk_options_inner').addClass('scrollable vertical');
-      }
-
       e.preventDefault();
       return false;
     });
@@ -398,8 +405,7 @@
       var
         $option = $(this),
         $dk     = $option.parents('.dk_container').first(),
-        data    = $dk.data('dropkick')
-      ;
+        data    = $dk.data('dropkick');
 
       _closeDropdown($dk);
       _updateFields($option, $dk);
