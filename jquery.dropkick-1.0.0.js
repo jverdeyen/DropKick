@@ -118,9 +118,13 @@
 
       $select.change(function() {
         var selected = $select.find(':selected').first();
-        _setFields($dk, selected.val(), selected.text());
+        //_setFields($dk, selected.val(), selected.text());
+
         $current = $dk.find("a[data-dk-dropdown-value='" + selected.val() + "']");
+         _updateFields($current, $dk);
+
         _setCurrent($current.parents('li'), $dk);
+
       });
 
       if (data.flags === true) {
